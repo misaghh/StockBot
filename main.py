@@ -22,56 +22,55 @@ endDate_format = datetime.datetime.strptime(end_date, "%m/%d/%Y")
 endUnix_time = int(datetime.datetime.timestamp(endDate_format))
 
 
-res = finnhub_client.stock_candles(t, 'D', startUnix_time, endUnix_time)
-quote = finnhub_client.quote(t) 
-df = pd.DataFrame(res)   # , index=pd.date_range(start=start_date, end=end_date, freq="m")
-
-
-#create figure
-plt.figure()
-
-#define width of candlestick elements
-width = .4
-width2 = .05
-
-#define up and down prices
-up = df[df.c>=df.o]
-down = df[df.c<df.o]
-
-#define colors to use
-col1 = 'green'
-col2 = 'red'
-
-#plot up prices
-plt.bar(up.index,up.c-up.o,width,bottom=up.o,color=col1)
-plt.bar(up.index,up.h-up.c,width2,bottom=up.c,color=col1)
-plt.bar(up.index,up.l-up.o,width2,bottom=up.o,color=col1)
-
-#plot down prices
-plt.bar(down.index,down.c-down.o,width,bottom=down.o,color=col2)
-plt.bar(down.index,down.h-down.o,width2,bottom=down.o,color=col2)
-plt.bar(down.index,down.l-down.c,width2,bottom=down.c,color=col2)
-
-#rotate x-axis tick labels
-plt.xticks(rotation=45, ha='right')
-
-#display candlestick chart
-plt.show()
-
-print(df)
-print(quote)
+# res = finnhub_client.stock_candles(t, 'D', startUnix_time, endUnix_time)
+# quote = finnhub_client.quote(t) 
+# df = pd.DataFrame(res)   # , index=pd.date_range(start=start_date, end=end_date, freq="m")
 
 
 #gets Data for specific stock and prints it
-# def getStockData(ticker, startDate, endDate):
+# def getStockDataCandle(ticker, startDate, endDate):
 #     res = finnhub_client.stock_candles(t, 'D', startUnix_time, endUnix_time)
 #     quote = finnhub_client.quote(t) 
-#     df = pd.DataFrame(res)
+#     df = pd.DataFrame(res, )
+#     df['t'] = pd.to_datetime(df['t'], unit='ms')
+
+#     #create figure
+#     plt.figure()
+
+#     #define width of candlestick elements
+#     width = .4
+#     width2 = .05
+
+#     #define up and down prices
+#     up = df[df.c>=df.o]
+#     down = df[df.c<df.o]
+
+#     #define colors to use
+#     col1 = 'green'
+#     col2 = 'red'
+
+#     #plot up prices
+#     plt.bar(up.index,up.c-up.o,width,bottom=up.o,color=col1)
+#     plt.bar(up.index,up.h-up.c,width2,bottom=up.c,color=col1)
+#     plt.bar(up.index,up.l-up.o,width2,bottom=up.o,color=col1)
+
+#     #plot down prices
+#     plt.bar(down.index,down.c-down.o,width,bottom=down.o,color=col2)
+#     plt.bar(down.index,down.h-down.o,width2,bottom=down.o,color=col2)
+#     plt.bar(down.index,down.l-down.c,width2,bottom=down.c,color=col2)
+
+#     #rotate x-axis tick labels
+#     plt.xticks(rotation=45, ha='right')
+
+#     #display candlestick chart
+#     plt.show()
 #     print(df)
 #     print(quote)
 
 
-# getStockData(t, startUnix_time,endUnix_time)
+
+
+# getStockDataCandle(t, startUnix_time,endUnix_time)
 
 
 
@@ -80,20 +79,25 @@ print(quote)
 # # Read the data from the CSV file into a Pandas DataFrame
 # data = pd.read_csv("test.csv")
 
-# # Create a new column "Daily_Return" to store the calculated daily return
-# data["Daily_Return"] = 0.0
 
-# # Calculate the daily return for each day and populate the "Daily_Return" column              
-# for i in range(1, len(data)):
-#     prev_close = data.at[i - 1, "c"]
-#     current_close = data.at[i, "c"]
-#     daily_return = (current_close - prev_close) / prev_close
-#     data.at[i, "Daily_Return"] = daily_return
+def getDailyReturn(t, startUnix_time, endUnix_time):
+    res = finnhub_client.stock_candles(t, 'D', startUnix_time, endUnix_time)
+    df = pd.DataFrame(res)
+    df['t'] = pd.to_datetime(df['t'], unit='ms')
+    # Create a new column "Daily_Return" to store the calculated daily return
+    res["Daily_Return"] = 0.0
+    # Calculate the daily return for each day and populate the "Daily_Return" column              
+    for i in range(len(df)):
+        prev_close = df['c'].iloc[i-1]
+        current_close = df['c'].iloc[i]
+        daily_return = (current_close - prev_close) / prev_close
+        df[i, 'Daily_Return'] = daily_return
 
-# # Print the DataFrame with the daily return column
-# print(data)
+    # Print the DataFrame with the daily return column
+    print(res)
+    print(df)
 
-
+getDailyReturn(t, startUnix_time, endUnix_time)
 
 
 
