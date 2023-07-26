@@ -74,30 +74,39 @@ endUnix_time = int(datetime.datetime.timestamp(endDate_format))
 
 
 
-
-
 # # Read the data from the CSV file into a Pandas DataFrame
 # data = pd.read_csv("test.csv")
 
 
-def getDailyReturn(t, startUnix_time, endUnix_time):
+def getDailyReturn(t, startUnix_time, endUnix_time) -> pd.DataFrame:
     res = finnhub_client.stock_candles(t, 'D', startUnix_time, endUnix_time)
     df = pd.DataFrame(res)
-    df['t'] = pd.to_datetime(df['t'], unit='ms')
+    df['t'] = pd.to_datetime(df['t'], unit='s')
     # Create a new column "Daily_Return" to store the calculated daily return
-    res["Daily_Return"] = 0.0
-    # Calculate the daily return for each day and populate the "Daily_Return" column              
+    df['Daily_Return'] = 0.0
+    
+    # Calculate the daily return for each day and populate the "Daily_Return" column
     for i in range(len(df)):
-        prev_close = df['c'].iloc[i-1]
-        current_close = df['c'].iloc[i]
-        daily_return = (current_close - prev_close) / prev_close
-        df[i, 'Daily_Return'] = daily_return
+        # get previous day close 
+        # prev_close = df['c'].iloc[i - 1]      #CHATGPT
 
-    # Print the DataFrame with the daily return column
-    print(res)
-    print(df)
+        # get current day close
+        # current_close = df['c'].iloc[i]       #CHATGPT
 
-getDailyReturn(t, startUnix_time, endUnix_time)
+        # calculate DailyReturn for each day 
+        # daily_return = (current_close - prev_close) / prev_close     #CHATGPT
+        
+        # Calculate daily return buy using the closing and opening price
+        daily_return = df['o'].iloc[i] - df['c'].iloc[i]
+
+        #add each Daily_Return value to correspoding column
+        df.at[i, 'Daily_Return'] = daily_return
+
+
+    # Return the dataframe with the DailyReturn Column
+    return df
+
+print(getDailyReturn(t, startUnix_time, endUnix_time))
 
 
 
